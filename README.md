@@ -1,6 +1,6 @@
 # babel-plugin-transform-react-to-vue
 
-[![NPM version](https://img.shields.io/npm/v/babel-plugin-transform-react-to-vue.svg?style=flat)](https://npmjs.com/package/babel-plugin-transform-react-to-vue) [![NPM downloads](https://img.shields.io/npm/dm/babel-plugin-transform-react-to-vue.svg?style=flat)](https://npmjs.com/package/babel-plugin-transform-react-to-vue) [![CircleCI](https://circleci.com/gh/egoist/babel-plugin-transform-react-to-vue/tree/master.svg?style=shield)](https://circleci.com/gh/egoist/babel-plugin-transform-react-to-vue/tree/master)  [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/egoist/donate)
+[![NPM version](https://img.shields.io/npm/v/babel-plugin-transform-react-to-vue.svg?style=flat)](https://npmjs.com/package/babel-plugin-transform-react-to-vue) [![NPM downloads](https://img.shields.io/npm/dm/babel-plugin-transform-react-to-vue.svg?style=flat)](https://npmjs.com/package/babel-plugin-transform-react-to-vue) [![CircleCI](https://circleci.com/gh/vueact/babel-plugin-transform-react-to-vue/tree/master.svg?style=shield)](https://circleci.com/gh/vueact/babel-plugin-transform-react-to-vue/tree/master)  [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/egoist/donate)
 
 🚧 **In development...**
 
@@ -68,6 +68,6 @@ var Counter = {
 ## Author
 
 **babel-plugin-transform-react-to-vue** © [egoist](https://github.com/egoist), Released under the [MIT](./LICENSE) License.<br>
-Authored and maintained by egoist with help from contributors ([list](https://github.com/egoist/babel-plugin-transform-react-to-vue/contributors)).
+Authored and maintained by egoist with help from contributors ([list](https://github.com/vueact/babel-plugin-transform-react-to-vue/contributors)).
 
 > [egoistian.com](https://egoistian.com) · GitHub [@egoist](https://github.com/egoist) · Twitter [@rem_rin_rin](https://twitter.com/rem_rin_rin)

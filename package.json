@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "my impeccable project",
   "repository": {
-    "url": "egoist/babel-plugin-transform-react-to-vue",
+    "url": "vueact/babel-plugin-transform-react-to-vue",
     "type": "git"
   },
   "main": "index.js",
