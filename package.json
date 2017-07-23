@@ -1,0 +1,37 @@
+{
+  "name": "babel-plugin-transform-react-to-vue",
+  "version": "0.0.0",
+  "description": "my impeccable project",
+  "repository": {
+    "url": "egoist/babel-plugin-transform-react-to-vue",
+    "type": "git"
+  },
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "jest && npm run lint",
+    "lint": "xo"
+  },
+  "author": "egoist <0x142857@gmail.com>",
+  "license": "MIT",
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "dependencies": {
+    "babel-plugin-syntax-class-properties": "^6.13.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "eslint-config-rem": "^3.0.0",
+    "jest-cli": "^19.0.0",
+    "xo": "^0.18.0"
+  },
+  "xo": {
+    "extends": "rem",
+    "envs": [
+      "jest"
+    ]
+  }
+}
