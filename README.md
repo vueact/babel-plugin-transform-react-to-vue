@@ -65,9 +65,8 @@ var Counter = {
 5. Submit a pull request :D
 
 
-## Author
+## Team
 
-**babel-plugin-transform-react-to-vue** © [egoist](https://github.com/egoist), Released under the [MIT](./LICENSE) License.<br>
-Authored and maintained by egoist with help from contributors ([list](https://github.com/vueact/babel-plugin-transform-react-to-vue/contributors)).
-
-> [egoistian.com](https://egoistian.com) · GitHub [@egoist](https://github.com/egoist) · Twitter [@_egoistlily](https://twitter.com/_egoistlily)
+[![EGOIST](https://github.com/egoist.png?size=100)](https://github.com/egoist) | [![Nick Messing](https://github.com/nickmessing.png?size=100)](https://github.com/nickmessing)
+---|---
+[EGOIST](http://github.com/egoist) | [Nick Missing](https://github.com/nickmessing)
