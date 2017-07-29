@@ -191,3 +191,36 @@ export default class App extends Component {
   }
 }`
 )
+
+transpileTest(
+  'named import from react-dom',
+  `
+import React, { Component } from 'react'
+import { render } from 'react-dom'
+
+class App extends Component {}
+render(<App />, document.getElementById('root'))
+`
+)
+
+transpileTest(
+  'import render from react-dom as different name',
+  `
+import React, { Component } from 'react'
+import { render as foo } from 'react-dom'
+
+class App extends Component {}
+foo(<App />, document.getElementById('root'))
+`
+)
+
+transpileTest(
+  'ignores some named import from react-dom',
+  `
+import React, { Component } from 'react'
+import { foo as render } from 'react-dom'
+
+class App extends Component {}
+render(<App />, document.getElementById('root'))
+`
+)
