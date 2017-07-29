@@ -86,16 +86,64 @@ const getReactComponentIdentifier = (t, path) => {
 
 const convertReactBody = (t, path) => {
   path.traverse({
-    // this.state.* => this.$data.* and this.props.* => this.$attrs.*
+    // this.state.*, this.props.* => this.$attrs.*, this.props.children
     MemberExpression(path) {
       const object = path.get('object')
       const property = path.get('property')
 
-      if (t.isThisExpression(object) && t.isIdentifier(property) && property.node.name === 'state') {
+      if (
+        t.isMemberExpression(object) &&
+        t.isThisExpression(object.get('object')) &&
+        t.isIdentifier(object.get('property')) &&
+        (object.get('property').node.name === 'props' || object.get('property').node.name === '$attrs') &&
+        t.isIdentifier(property) &&
+        property.node.name === 'children'
+      ) {
+        path.replaceWith(t.memberExpression(t.thisExpression(), t.identifier('$children')))
+      } else if (t.isThisExpression(object) && t.isIdentifier(property) && property.node.name === 'state') {
         property.replaceWith(t.identifier('$data'))
       } else if (t.isThisExpression(object) && t.isIdentifier(property) && property.node.name === 'props') {
         property.replaceWith(t.identifier('$attrs'))
       }
+    },
+    // children
+    VariableDeclaration(path) {
+      const declarators = path.get('declarations')
+      declarators.forEach(declaratorPath => {
+        const id = declaratorPath.get('id')
+        const init = declaratorPath.get('init')
+        if (
+          !t.isObjectPattern(id) ||
+          !t.isMemberExpression(init) ||
+          !t.isThisExpression(init.get('object')) ||
+          !t.isIdentifier(init.get('property')) ||
+          init.get('property').node.name !== 'props'
+        ) {
+          return
+        }
+        const properties = id.get('properties')
+        properties.forEach(propertyPath => {
+          if (!t.isObjectProperty(propertyPath)) {
+            return
+          }
+          const key = propertyPath.get('key')
+          if (!t.isIdentifier(key) || key.node.name !== 'children') {
+            return
+          }
+          const childrenIdentifier = propertyPath.get('value').node
+
+          const declarator = t.variableDeclarator(
+            childrenIdentifier,
+            t.memberExpression(t.thisExpression(), t.identifier('$children'))
+          )
+          if (properties.length === 1) {
+            declaratorPath.replaceWith(declarator)
+          } else {
+            propertyPath.remove()
+            declaratorPath.insertAfter(declarator)
+          }
+        })
+      })
     },
     // className => class
     JSXAttribute(path) {

@@ -140,3 +140,29 @@ export default class App extends Component {
 }
 `
 )
+
+transpileTest(
+  'Component with children',
+  `
+import React, { Component } from 'react'
+
+export default class App extends Component {
+  method1() {
+    const { children: a } = this.props
+    console.log(a)
+  }
+  method2() {
+    const { children } = this.props
+    console.log(children)
+  }
+  method3() {
+    const { children, a, ...props } = this.props
+    console.log(children)
+  }
+  method4() {
+    const msg = 'testing'
+    console.log(this.props.children, msg)
+  }
+}
+`
+)
