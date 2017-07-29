@@ -33,7 +33,7 @@ const removeImports = (t, path) => {
 
       if (name === 'react-dom') {
         path.replaceWith(t.importDeclaration([t.importDefaultSpecifier(t.identifier('Vue'))], t.stringLiteral('vue')))
-      } else if (name === 'react') {
+      } else if (name === 'react' || name === 'prop-types') {
         path.remove()
       }
     }
