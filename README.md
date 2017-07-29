@@ -69,4 +69,4 @@ var Counter = {
 
 [![EGOIST](https://github.com/egoist.png?size=100)](https://github.com/egoist) | [![Nick Messing](https://github.com/nickmessing.png?size=100)](https://github.com/nickmessing)
 ---|---
-[EGOIST](http://github.com/egoist) | [Nick Missing](https://github.com/nickmessing)
+[EGOIST](http://github.com/egoist) | [Nick Messing](https://github.com/nickmessing)
