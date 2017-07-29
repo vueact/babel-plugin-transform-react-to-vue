@@ -11,7 +11,8 @@
     "index.js"
   ],
   "scripts": {
-    "test": "ava && npm run lint",
+    "test": "npm run lint && ava",
+    "test:cov": "npm run lint && npm run cov",
     "lint": "xo",
     "cov": "nyc --reporter=lcov ava"
   },
