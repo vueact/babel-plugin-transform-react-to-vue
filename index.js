@@ -1,7 +1,7 @@
 const eventRE = /^on/
 
 const isSpecialMethod = (() => {
-  const specialMethods = new Set(['render', 'componentDidMount', 'componentWillMount', 'componentWillUnmount'])
+  const specialMethods = new Set(['render', 'componentDidMount', 'componentWillMount', 'componentWillUnmount', 'constructor'])
 
   return methodName => specialMethods.has(methodName)
 })()
@@ -13,7 +13,8 @@ const mapMethodName = (() => {
       map = {
         componentDidMount: t.identifier('mounted'),
         componentWillMount: t.identifier('beforeMount'),
-        componentWillUnmount: t.identifier('beforeDestroy')
+        componentWillUnmount: t.identifier('beforeDestroy'),
+        constructor: t.identifier('data')
       }
     }
     return map[key.name] || key
@@ -70,7 +71,7 @@ const getImportIdentifier = (t, path, moduleName, identifier) => {
   return result
 }
 
-const convertReactBody = (t, path) => {
+const convertReactBody = (t, path, dataIdentifier = '$data') => {
   path.traverse({
     // this.state.*, this.props.* => this.$attrs.*, this.props.children
     MemberExpression(path) {
@@ -87,7 +88,7 @@ const convertReactBody = (t, path) => {
       ) {
         path.replaceWith(t.memberExpression(t.thisExpression(), t.identifier('$children')))
       } else if (t.isThisExpression(object) && t.isIdentifier(property) && property.node.name === 'state') {
-        property.replaceWith(t.identifier('$data'))
+        property.replaceWith(t.identifier(dataIdentifier))
       } else if (t.isThisExpression(object) && t.isIdentifier(property) && property.node.name === 'props') {
         property.replaceWith(t.identifier('$attrs'))
       }
@@ -142,6 +143,12 @@ const convertReactBody = (t, path) => {
     CallExpression(path) {
       const callee = path.get('callee')
       const args = path.get('arguments')
+
+      if (callee.node.type === 'Super') {
+        path.remove()
+        return
+      }
+
       if (
         t.isMemberExpression(callee) &&
         t.isThisExpression(callee.get('object')) &&
@@ -281,12 +288,38 @@ const convertReactComponent = (t, path, isDefaultExport) => {
     if (
       // normal methods
       t.isClassMethod(reactProperty) &&
-      reactProperty.node.kind === 'method' &&
+      (reactProperty.node.kind === 'method' || reactProperty.node.kind === 'constructor') &&
       t.isIdentifier(key)
     ) {
       const body = reactProperty.get('body')
-      const params = reactProperty.node.params
-      convertReactBody(t, reactProperty.get('body'))
+      let params
+
+      if (reactProperty.node.kind === 'constructor') {
+        params = []
+        const firstParam = reactProperty.node.params[0]
+        if (t.isIdentifier(firstParam)) {
+          body.node.body.unshift(
+            t.variableDeclaration('var', [
+              t.variableDeclarator(
+                t.identifier(firstParam.name),
+                t.memberExpression(
+                  t.thisExpression(),
+                  t.identifier('$props')
+                )
+              )
+            ])
+          )
+        }
+        body.node.body.push(t.returnStatement(t.memberExpression(
+          t.thisExpression(),
+          t.identifier('__state')
+        )))
+        convertReactBody(t, reactProperty.get('body'), '__state')
+      } else {
+        params = reactProperty.node.params
+        convertReactBody(t, reactProperty.get('body'))
+      }
+
       const newMethod = t.objectMethod('method', mapMethodName(t, key.node), params, body.node)
       newMethod.async = reactProperty.node.async
       newMethod.generator = reactProperty.node.generator
