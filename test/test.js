@@ -166,3 +166,28 @@ export default class App extends Component {
 }
 `
 )
+
+transpileTest(
+  'Component with events',
+  `
+import React, { Component } from 'react'
+
+export default class App extends Component {
+  method1() {
+    const { onSomething: a } = this.props
+    a(1, '2')
+  }
+  method2() {
+    const { onSomethingElse } = this.props
+    onSomethingElse(3, '4')
+  }
+  method3() {
+    const { onHello, a, ...props } = this.props
+    onHello(5, '6')
+  }
+  method4() {
+    const a = 'test'
+    this.props.onSomeEvent(7, '8', a)
+  }
+}`
+)

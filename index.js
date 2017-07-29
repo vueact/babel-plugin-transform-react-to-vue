@@ -1,3 +1,5 @@
+const eventRE = /^on/
+
 const isSpecialMethod = (() => {
   const specialMethods = new Set(['render', 'componentDidMount', 'componentWillMount', 'componentWillUnmount'])
 
@@ -200,6 +202,94 @@ const convertReactComponent = (t, path, isDefaultExport) => {
 
   const reactBody = path.get('body')
   const methods = []
+
+  // events
+  path.traverse({
+    BlockStatement(path) {
+      const body = path.get('body')
+      const eventMap = {}
+      body.forEach(statementPath => {
+        if (!t.isVariableDeclaration(statementPath)) {
+          return
+        }
+
+        const declarations = statementPath.get('declarations')
+
+        declarations.forEach(declarationPath => {
+          const id = declarationPath.get('id')
+          const init = declarationPath.get('init')
+          if (
+            !t.isObjectPattern(id) ||
+            !t.isMemberExpression(init) ||
+            !t.isThisExpression(init.get('object')) ||
+            !t.isIdentifier(init.get('property')) ||
+            init.get('property').node.name !== 'props'
+          ) {
+            return
+          }
+          const properties = id.get('properties')
+
+          properties.forEach(propertyPath => {
+            if (!t.isObjectProperty(propertyPath)) {
+              return
+            }
+            const key = propertyPath.get('key')
+            const value = propertyPath.get('value')
+            if (!eventRE.test(key.node.name)) {
+              return
+            }
+            eventMap[value.node.name] = key.node.name
+            propertyPath.remove()
+          })
+          if (id.get('properties').length === 0) {
+            declarationPath.remove()
+          }
+        })
+      })
+
+      path.traverse({
+        CallExpression(path) {
+          const callee = path.get('callee')
+          if (!t.isIdentifier(callee) || eventMap[callee.node.name] === undefined) {
+            return
+          }
+          callee.replaceWith(
+            t.memberExpression(
+              t.memberExpression(t.thisExpression(), t.identifier('props')),
+              t.identifier(eventMap[callee.node.name])
+            )
+          )
+        }
+      })
+
+      path.traverse({
+        CallExpression(path) {
+          const callee = path.get('callee')
+          if (
+            !t.isMemberExpression(callee) ||
+            !t.isMemberExpression(callee.get('object')) ||
+            !t.isThisExpression(callee.get('object').get('object')) ||
+            !t.isIdentifier(callee.get('object').get('property')) ||
+            callee.get('object').get('property').node.name !== 'props' ||
+            !t.isIdentifier(callee.get('property')) ||
+            !eventRE.test(callee.get('property').node.name)
+          ) {
+            return
+          }
+          const eventNameUppercased = callee.get('property').node.name.replace(eventRE, '')
+          const eventName = `${eventNameUppercased[0].toLowerCase()}${eventNameUppercased.slice(1)}`
+
+          const args = path.get('arguments').map(path => path.node)
+          path.replaceWith(
+            t.callExpression(t.memberExpression(t.thisExpression(), t.identifier('$emit')), [
+              t.stringLiteral(eventName),
+              ...args
+            ])
+          )
+        }
+      })
+    }
+  })
 
   reactBody.get('body').forEach(reactProperty => {
     const key = reactProperty.get('key')
