@@ -7,31 +7,26 @@
     "type": "git"
   },
   "main": "index.js",
-  "files": [
-    "index.js"
-  ],
+  "files": ["index.js"],
   "scripts": {
-    "test": "jest && npm run lint",
-    "lint": "xo"
+    "test": "ava && npm run lint",
+    "lint": "xo",
+    "cov": "nyc --reporter=lcov ava"
   },
   "author": "egoist <0x142857@gmail.com>",
   "license": "MIT",
-  "jest": {
-    "testEnvironment": "node"
-  },
-  "dependencies": {
-    "babel-plugin-syntax-class-properties": "^6.13.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "babel-core": "^6.25.0",
+    "ava": "^0.21.0",
+    "babel-core": "next",
+    "babel-plugin-syntax-class-properties": "next",
+    "babel-plugin-syntax-jsx": "next",
+    "babel-plugin-syntax-object-rest-spread": "next",
     "eslint-config-rem": "^3.0.0",
-    "jest-cli": "^19.0.0",
+    "nyc": "^11.0.3",
     "xo": "^0.18.0"
   },
   "xo": {
-    "extends": "rem",
-    "envs": [
-      "jest"
-    ]
+    "extends": "rem"
   }
 }

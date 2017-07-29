@@ -2,8 +2,6 @@
 
 [![NPM version](https://img.shields.io/npm/v/babel-plugin-transform-react-to-vue.svg?style=flat)](https://npmjs.com/package/babel-plugin-transform-react-to-vue) [![NPM downloads](https://img.shields.io/npm/dm/babel-plugin-transform-react-to-vue.svg?style=flat)](https://npmjs.com/package/babel-plugin-transform-react-to-vue) [![CircleCI](https://circleci.com/gh/vueact/babel-plugin-transform-react-to-vue/tree/master.svg?style=shield)](https://circleci.com/gh/vueact/babel-plugin-transform-react-to-vue/tree/master)  [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/egoist/donate)
 
-🚧 **In development...**
-
 ## Install
 
 ```bash
@@ -21,39 +19,79 @@ yarn add babel-plugin-transform-react-to-vue --dev
 Input:
 
 ```js
-class Counter extends Component {
-  state = { count: 0 }
+import ReactDOM from 'react-dom'
+import React, { Component } from 'react'
 
-  inc = () => this.setState({count: this.state.count + 1})
-
-  render() {
-    return <button onClick={this.inc}>
-      {this.state.count}
-    </button>
+class App extends Component {
+  state = {
+    hello: 'world'
   }
+  myMethod = () => {
+    this.setState({ hello: 'not world ;)' })
+  }
+  render() {
+    return (
+      <div className="App">
+        <div className="App-header" onClick={this.myMethod}>
+          <h2>
+            Hello {this.state.hello}
+          </h2>
+        </div>
+        <p className="App-intro">
+          To get started, edit <code>src/App.js</code> and save to reload.
+        </p>
+      </div>
+    )
+  }
+  componentDidMount = () => console.log(this.state)
 }
+
+ReactDOM.render(<App />, document.getElementById('root'))
 ```
 
 Output:
 
 ```js
-var Counter = {
-  data() {
-    return {
-      count: 0
-    }
-  },
-  methods: {
-    inc() {
-      this.count = this.count + 1
-    }
-  },
+import Vue from 'vue'
+
+const App = {
+  data: () => ({
+    hello: 'world'
+  }),
+
   render() {
-    return <button onClick={this.inc}>
-      {this.count}
-    </button>
+    return (
+      <div class="App">
+        <div class="App-header" onClick={this.myMethod}>
+          <h2>
+            Hello {this.$data.hello}
+          </h2>
+        </div>
+        <p class="App-intro">
+          To get started, edit <code>src/App.js</code> and save to reload.
+        </p>
+      </div>
+    )
+  },
+
+  mounted() {
+    return console.log(this.$data)
+  },
+
+  methods: {
+    myMethod() {
+      this.hello = 'not world ;)'
+    }
   }
 }
+
+new Vue({
+  el: document.getElementById('root'),
+
+  render() {
+    return <App />
+  }
+})
 ```
 
 ## Contributing
