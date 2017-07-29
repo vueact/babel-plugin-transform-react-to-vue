@@ -16,6 +16,8 @@ yarn add babel-plugin-transform-react-to-vue --dev
 }
 ```
 
+> **NOTE**: If you want it to work with experimental ECMAScript feature like `class-properties`, please use the plugin with `babel-plugin-syntax-class-properties`, or `babel-plugin-transform-class-properties` if you want to transpile it.
+
 Input:
 
 ```js
