@@ -1,13 +1,15 @@
 {
   "name": "babel-plugin-transform-react-to-vue",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "my impeccable project",
   "repository": {
     "url": "vueact/babel-plugin-transform-react-to-vue",
     "type": "git"
   },
   "main": "index.js",
-  "files": ["index.js"],
+  "files": [
+    "index.js"
+  ],
   "scripts": {
     "test": "ava && npm run lint",
     "lint": "xo",
