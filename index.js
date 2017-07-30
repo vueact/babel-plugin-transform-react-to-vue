@@ -390,9 +390,14 @@ module.exports = ({ types: t }) => {
           },
           ClassDeclaration(path) {
             const superClass = path.get('superClass')
+            if (superClass) {
+              const isReactDotComponent = t.isMemberExpression(superClass) && superClass.node.object.name === 'React' && superClass.node.property.name === componentIdentifier
 
-            if (superClass && t.isIdentifier(superClass) && superClass.node.name === componentIdentifier) {
-              convertReactComponent(t, path, path === defaultExport)
+              const isComponent = t.isIdentifier(superClass) && superClass.node.name === componentIdentifier
+
+              if (isReactDotComponent || isComponent) {
+                convertReactComponent(t, path, path === defaultExport)
+              }
             }
           },
           CallExpression(path) {

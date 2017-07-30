@@ -241,3 +241,12 @@ class App extends Component {
 }
 `
 )
+
+transpileTest(
+  'convert React.Component',
+  `
+import React from 'react'
+
+class App extends React.Component {}
+`
+)
