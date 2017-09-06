@@ -1,7 +1,7 @@
 {
   "name": "babel-plugin-transform-react-to-vue",
   "version": "0.2.0",
-  "description": "my impeccable project",
+  "description": "Babel plugin to transform react components to vue components",
   "repository": {
     "url": "vueact/babel-plugin-transform-react-to-vue",
     "type": "git"
@@ -11,23 +11,30 @@
     "index.js"
   ],
   "scripts": {
-    "test": "npm run lint && ava",
-    "test:cov": "npm run lint && npm run cov",
+    "pretest": "NODE_ENV=test yarn build",
+    "test": "yarn lint && ava",
     "lint": "xo",
-    "cov": "nyc --reporter=lcov ava"
+    "precov": "yarn pretest",
+    "cov": "nyc --reporter=lcov ava",
+    "build": "rollup --config build.js",
+    "prepare": "yarn build"
   },
   "author": "egoist <0x142857@gmail.com>",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "ava": "^0.21.0",
-    "babel-core": "next",
-    "babel-plugin-syntax-class-properties": "next",
-    "babel-plugin-syntax-jsx": "next",
-    "babel-plugin-syntax-object-rest-spread": "next",
-    "eslint-config-rem": "^3.0.0",
-    "nyc": "^11.0.3",
-    "xo": "^0.18.0"
+    "ava": "^0.22.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-istanbul": "^4.1.4",
+    "babel-plugin-syntax-class-properties": "6.13.0",
+    "babel-plugin-syntax-jsx": "6.18.0",
+    "babel-plugin-syntax-object-rest-spread": "6.13.0",
+    "babel-preset-env": "^1.6.0",
+    "eslint-config-rem": "^3.2.0",
+    "nyc": "^11.2.0",
+    "rollup": "^0.49.2",
+    "rollup-plugin-babel": "^3.0.2",
+    "xo": "^0.18.2"
   },
   "xo": {
     "extends": "rem"

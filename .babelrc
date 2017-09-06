@@ -1,0 +1,8 @@
+{
+  "presets": [["env", { "targets": { "node": 4 }, "modules": false }]],
+  "env": {
+    "test": {
+      "plugins": ["istanbul"]
+    }
+  }
+}
