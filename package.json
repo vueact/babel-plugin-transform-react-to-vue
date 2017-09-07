@@ -6,8 +6,8 @@
     "url": "vueact/babel-plugin-transform-react-to-vue",
     "type": "git"
   },
-  "main": "index.js",
-  "files": ["index.js"],
+  "main": "dist/bundle.js",
+  "files": ["dist/bundle.js"],
   "scripts": {
     "pretest": "NODE_ENV=test yarn build",
     "test": "yarn lint && ava",
