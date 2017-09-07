@@ -26,8 +26,8 @@ export default (t, path) => {
   optimizeEventEmitters(t, path)
   optimizeStateAccess(t, path)
   optimizeDeepStateMutations(t, path)
-  const { rootMethods, methods } = convertMethods(t, path)
+  const { rootMethods, methods, watchers } = convertMethods(t, path)
   const data = convertInitialState(t, path)
 
-  return { componentId, data, rootMethods, methods }
+  return { componentId, data, rootMethods, methods, watchers }
 }

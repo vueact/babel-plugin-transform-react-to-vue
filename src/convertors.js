@@ -244,6 +244,7 @@ export const convertStateAccess = (t, path) => {
 export const convertMethods = (t, path) => {
   const methods = []
   const rootMethods = []
+  const watchers = []
   path.traverse({
     ClassMethod(path) {
       if (path.get('kind').node === 'constructor') {
@@ -253,12 +254,20 @@ export const convertMethods = (t, path) => {
       if (t.isIdentifier(path.get('key')) && specialMethods[path.get('key.name').node]) {
         path.get('key').node.name = specialMethods[path.get('key.name').node]
         rootMethods.push(path.node)
+      } else if (t.isIdentifier(path.get('key')) && path.get('key.name').node === 'componentWillReceiveProps') {
+        path.get('key').node.name = 'handler'
+        watchers.push(
+          t.objectProperty(
+            t.identifier('$props'),
+            t.objectExpression([t.objectProperty(t.identifier('deep'), t.booleanLiteral(true)), path.node])
+          )
+        )
       } else {
         methods.push(path.node)
       }
     }
   })
-  return { methods, rootMethods }
+  return { methods, rootMethods, watchers }
 }
 
 export const optimizeStateAccess = (t, path) => {

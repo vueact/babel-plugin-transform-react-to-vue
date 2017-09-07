@@ -301,3 +301,16 @@ class App {
 }
 `
 )
+
+transpileTest(
+  'componentWillReceiveProps',
+  `
+import React, { Component } from 'react'
+
+class App extends Component {
+  componentWillReceiveProps = (nextProps = {}) => {
+    console.log(nextProps)
+  }
+}
+`
+)
