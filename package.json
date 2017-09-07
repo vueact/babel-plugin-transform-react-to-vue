@@ -31,5 +31,8 @@
   },
   "xo": {
     "extends": "rem"
+  },
+  "publishConfig": {
+    "message": "Release %s"
   }
 }
