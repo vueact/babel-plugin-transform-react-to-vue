@@ -10,17 +10,18 @@ export default ({ types: t }) => ({
       const React = getImportedIdentifier(t, path, 'react', 'default')
       const Component = getImportedIdentifier(t, path, 'react', 'Component')
       const ReactDOM = getImportedIdentifier(t, path, 'react-dom', 'default')
-      const render = getImportedIdentifier(t, path, 'react', 'render')
+      const render = getImportedIdentifier(t, path, 'react-dom', 'render')
 
       const defaultExport = getDefaultExport(t, path)
 
       path.traverse({
         ClassDeclaration(path) {
           const superClass = path.get('superClass')
-          if (superClass) {
-            if (isIdentifier(t, superClass, Component) || isMemberExpression(t, superClass, React, 'Component')) {
-              convertReactComponent(t, path, path === defaultExport)
-            }
+          if (
+            superClass &&
+            (isIdentifier(t, superClass, Component) || isMemberExpression(t, superClass, React, 'Component'))
+          ) {
+            convertReactComponent(t, path, path === defaultExport)
           }
         }
       })

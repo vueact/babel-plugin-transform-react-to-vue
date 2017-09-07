@@ -9,7 +9,9 @@ import {
   optimizeStateAccess,
   optimizeDeepStateMutations,
   convertProps,
-  convertChildren
+  convertChildren,
+  convertEvents,
+  optimizeEventEmitters
 } from './convertors'
 
 export default (t, path) => {
@@ -20,6 +22,8 @@ export default (t, path) => {
   convertJSX(t, path)
   convertProps(t, path)
   convertChildren(t, path)
+  convertEvents(t, path)
+  optimizeEventEmitters(t, path)
   optimizeStateAccess(t, path)
   optimizeDeepStateMutations(t, path)
   const { rootMethods, methods } = convertMethods(t, path)

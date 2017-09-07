@@ -2,11 +2,6 @@ export default (t, path) => {
   path.traverse({
     ImportDeclaration(path) {
       const source = path.get('source')
-
-      if (!t.isStringLiteral(source)) {
-        return
-      }
-
       const name = source.node.value
 
       if (name === 'react-dom') {

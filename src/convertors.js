@@ -106,10 +106,12 @@ export const convertConstructor = (t, path) => {
 
   removeParams(t, path)
 
-  propsIdentifierValue && t.isReferenced(propsIdentifierNode, path) && addPropsDeclaration(t, path, propsIdentifierNode)
+  propsIdentifierValue &&
+    isIdentifierUsed(path, propsIdentifierValue) &&
+    addPropsDeclaration(t, path, propsIdentifierNode)
 
   let dataIdentifier = 'data'
-  while (t.isReferenced(t.identifier(dataIdentifier), path)) {
+  while (isIdentifierUsed(path, dataIdentifier)) {
     dataIdentifier = `_${dataIdentifier}`
   }
 
@@ -202,6 +204,7 @@ export const convertInitialState = (t, path) => {
 
   path.traverse({
     ClassMethod(path) {
+      /* istanbul ignore else */
       if (path.get('kind').node === 'constructor') {
         result = convertConstructor(t, path)
         path.remove()
@@ -219,14 +222,21 @@ export const convertInitialState = (t, path) => {
 
 export const convertStateAccess = (t, path) => {
   path.traverse({
-    MemberExpression(path) {
-      if (
-        t.isThisExpression(path.get('object')) &&
-        t.isIdentifier(path.get('property')) &&
-        path.get('property.name').node === 'state'
-      ) {
-        path.get('property').node.name = '$data'
+    ClassMethod(path) {
+      if (path.get('kind').node === 'constructor') {
+        return
       }
+      path.traverse({
+        MemberExpression(path) {
+          if (
+            t.isThisExpression(path.get('object')) &&
+            t.isIdentifier(path.get('property')) &&
+            path.get('property.name').node === 'state'
+          ) {
+            path.get('property').node.name = '$data'
+          }
+        }
+      })
     }
   })
 }
@@ -272,16 +282,16 @@ export const memberExpressionToString = (t, path) => {
     const right = memberExpressionToString(t, path.get('property'))
     if (left && right) {
       return `${left}.${right}`
-    } else {
-      return null
     }
-  } else if (t.isThisExpression(path)) {
-    return 'this'
-  } else if (t.isIdentifier(path)) {
-    return path.get('name').node
-  } else {
     return null
   }
+  if (t.isThisExpression(path)) {
+    return 'this'
+  }
+  if (t.isIdentifier(path)) {
+    return path.get('name').node
+  }
+  return null
 }
 
 export const optimizeDeepStateMutations = (t, path) => {
@@ -296,7 +306,7 @@ export const optimizeDeepStateMutations = (t, path) => {
         return
       }
       const stringifiedLeft = memberExpressionToString(t, path.get('left'))
-      if (!stringifiedLeft.match(/^this\./)) {
+      if (!stringifiedLeft || !stringifiedLeft.match(/^this\./)) {
         return
       }
       const properties = path.get('right.properties')
@@ -311,7 +321,7 @@ export const optimizeDeepStateMutations = (t, path) => {
           memberExpressionToString(t, propertyPath.get('argument')) !== stringifiedLeft
       )
       const toAssign = properties.filter(propertyPath => !t.isSpreadProperty(propertyPath))
-      if (!matchedProperties.length || otherSpreads.length) {
+      if (matchedProperties.length === 0 || otherSpreads.length !== 0) {
         return
       }
 
@@ -374,6 +384,145 @@ export const convertChildren = (t, path) => {
       ) {
         path.replaceWith(t.memberExpression(t.thisExpression(), t.identifier('$children')))
       }
+    },
+    VariableDeclaration(declarationPath) {
+      declarationPath.traverse({
+        VariableDeclarator(path) {
+          if (
+            !t.isObjectPattern(path.get('id')) ||
+            !t.isMemberExpression(path.get('init')) ||
+            !t.isThisExpression(path.get('init.object')) ||
+            !t.isIdentifier(path.get('init.property')) ||
+            path.get('init.property.name').node !== '$props' ||
+            !t.isObjectPattern(path.get('id'))
+          ) {
+            return
+          }
+          const properties = path.get('id.properties')
+
+          properties.forEach(propertyPath => {
+            if (!t.isObjectProperty(propertyPath) || propertyPath.get('key.name').node !== 'children') {
+              return
+            }
+
+            const identifier = propertyPath.get('value').node
+
+            propertyPath.remove()
+
+            declarationPath.insertAfter(
+              t.variableDeclaration(declarationPath.get('kind').node, [
+                t.variableDeclarator(identifier, t.memberExpression(t.thisExpression(), t.identifier('$children')))
+              ])
+            )
+          })
+          if (path.get('id.properties').length === 0) {
+            path.remove()
+          }
+        }
+      })
+    }
+  })
+}
+
+export const convertEvents = (t, path) => {
+  path.traverse({
+    MemberExpression(path) {
+      if (
+        t.isMemberExpression(path.get('object')) &&
+        t.isThisExpression(path.get('object.object')) &&
+        t.isIdentifier(path.get('object.property')) &&
+        path.get('object.property.name').node === '$props' &&
+        path.get('property.name').node.startsWith('on')
+      ) {
+        let eventName = path.get('property.name').node.substr(2)
+        eventName = eventName[0].toLowerCase() + eventName.substr(1)
+        path.replaceWith(
+          t.callExpression(
+            t.memberExpression(t.memberExpression(t.thisExpression(), t.identifier('$emit')), t.identifier('bind')),
+            [t.thisExpression(), t.stringLiteral(eventName)]
+          )
+        )
+      }
+    },
+    VariableDeclaration(declarationPath) {
+      declarationPath.traverse({
+        VariableDeclarator(path) {
+          if (
+            !t.isObjectPattern(path.get('id')) ||
+            !t.isMemberExpression(path.get('init')) ||
+            !t.isThisExpression(path.get('init.object')) ||
+            !t.isIdentifier(path.get('init.property')) ||
+            path.get('init.property.name').node !== '$props' ||
+            !t.isObjectPattern(path.get('id'))
+          ) {
+            return
+          }
+          const properties = path.get('id.properties')
+
+          properties.forEach(propertyPath => {
+            if (!t.isObjectProperty(propertyPath) || !propertyPath.get('key.name').node.startsWith('on')) {
+              return
+            }
+
+            let eventName = propertyPath.get('key.name').node.substr(2)
+            eventName = eventName[0].toLowerCase() + eventName.substr(1)
+
+            const identifier = propertyPath.get('value').node
+
+            propertyPath.remove()
+
+            declarationPath.insertAfter(
+              t.variableDeclaration(declarationPath.get('kind').node, [
+                t.variableDeclarator(
+                  identifier,
+                  t.callExpression(
+                    t.memberExpression(
+                      t.memberExpression(t.thisExpression(), t.identifier('$emit')),
+                      t.identifier('bind')
+                    ),
+                    [t.thisExpression(), t.stringLiteral(eventName)]
+                  )
+                )
+              ])
+            )
+          })
+          if (path.get('id.properties').length === 0) {
+            path.remove()
+          }
+        }
+      })
+    }
+  })
+}
+
+export const optimizeEventEmitters = (t, path) => {
+  path.traverse({
+    CallExpression(path) {
+      if (
+        !t.isCallExpression(path.get('callee')) ||
+        !t.isMemberExpression(path.get('callee.callee')) ||
+        !t.isMemberExpression(path.get('callee.callee.object')) ||
+        !t.isThisExpression(path.get('callee.callee.object.object')) ||
+        !t.isIdentifier(path.get('callee.callee.object.property')) ||
+        path.get('callee.callee.object.property.name').node !== '$emit' ||
+        !t.isIdentifier(path.get('callee.callee.property')) ||
+        path.get('callee.callee.property.name').node !== 'bind' ||
+        path.get('callee.arguments').length !== 2 ||
+        !t.isThisExpression(path.get('callee.arguments.0')) ||
+        !t.isStringLiteral(path.get('callee.arguments.1'))
+      ) {
+        return
+      }
+
+      const eventNameStringLiteral = path.get('callee.arguments.1').node
+      const args = path.get('arguments').map(path => path.node)
+
+      path.replaceWith(
+        t.callExpression(t.memberExpression(t.thisExpression(), path.get('callee.callee.object.property').node), [
+          eventNameStringLiteral,
+          ...args
+        ])
+      )
     }
   })
 }

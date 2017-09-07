@@ -1,3 +1,5 @@
+/* eslint-disable import/prefer-default-export */
+
 export const specialMethods = {
   render: 'render',
   componentDidMount: 'mounted',

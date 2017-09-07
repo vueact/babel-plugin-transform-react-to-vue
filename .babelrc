@@ -1,5 +1,5 @@
 {
-  "presets": [["env", { "targets": { "node": 4 }, "modules": false }]],
+  "presets": [["env", { "targets": { "node": 6 }, "modules": false }]],
   "env": {
     "test": {
       "plugins": ["istanbul"]

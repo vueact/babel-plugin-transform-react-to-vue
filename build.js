@@ -4,11 +4,11 @@ export default {
   input: 'src/index.js',
   plugins: [
     babel({
-      exclude: 'node_modules/**',
-    }),
+      exclude: 'node_modules/**'
+    })
   ],
   output: {
     format: 'cjs',
-    file: `dist/bundle${process.env.NODE_ENV === 'test' ? '-test' : ''}.js`,
+    file: `dist/bundle${process.env.NODE_ENV === 'test' ? '-test' : ''}.js`
   }
 }

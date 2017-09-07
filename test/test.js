@@ -8,141 +8,152 @@ const transpile = input =>
 
 const transpileTest = (name, reactCode) =>
   test(name, t => {
-    console.log(reactCode, `${name}: React`)
-    console.log(transpile(reactCode), `${name}: Vue`)
+    t.snapshot(reactCode, `${name}: React`)
+    t.snapshot(transpile(reactCode), `${name}: Vue`)
   })
 
-// transpileTest(
-//   'Generic code',
-//   `
-// import ReactDOM from 'react-dom'
-// import React, { Component as Some } from 'react'
+transpileTest(
+  'Generic code',
+  `
+import ReactDOM from 'react-dom'
+import React, { Component as Some } from 'react'
 
-// class App extends Some {
-//   state = {
-//     hello: 'world',
-//     count: 10,
-//     some: {
-//       deep: {
-//         object: {
-//           hello: 'world'
-//         }
-//       }
-//     }
-//   }
-//   someRandomProp = 'not used'
-//   myMethod1(a, b) {
-//     return a + b
-//   }
-//   myMethod2 = (a, b) => {
-//     console.log(a, b)
-//   }
-//   inc = () => this.setState({ ...this.state, count: this.state.count + 1 })
-//   deep = () =>
-//     this.setState({
-//       ...this.state,
-//       some: {
-//         ...this.state.some,
-//         deep: {
-//           ...this.state.some.deep,
-//           object: {
-//             ...this.state.some.deep.object,
-//             hello: 'world2'
-//           },
-//           ['too']: 3
-//         }
-//       }
-//     })
-//   dec = () => {
-//     console.log('what will happen?')
-//     this.setState({ count: this.state.count + 0, ['hell' + 'o']: 'yay!' })
-//   }
-//   render() {
-//     return (
-//       <div className="App">
-//         <div className="App-header" onClick={this.inc} onChange={() => this.myMethod1(1, 2)}>
-//           <h2>
-//             Welcome to React {this.state.hello} {this.myMethod1()}
-//           </h2>
-//         </div>
-//         <p className="App-intro">
-//           To get started, edit <code>src/App.js</code> and save to reload.
-//         </p>
-//       </div>
-//     )
-//   }
-//   componentDidMount () {
-//     console.log(this.state)
-//   }
-// }
+class App extends Some {
+  state = {
+    hello: 'world',
+    count: 10,
+    some: {
+      deep: {
+        object: {
+          hello: 'world'
+        }
+      }
+    }
+  }
+  someRandomProp = 'not used'
+  myMethod1(a, b) {
+    return a + b
+  }
+  myMethod2 = (a, b) => {
+    console.log(a, b)
+  }
+  inc = () => this.setState({ ...this.state, count: this.state.count + 1 })
+  deep = () =>
+    this.setState({
+      ...this.state,
+      some: {
+        ...this.state.some,
+        deep: {
+          ...this.state.some.deep,
+          object: {
+            ...this.state.some.deep.object,
+            hello: 'world2'
+          }
+        }
+      }
+    })
+  deep2 = () =>
+    this.setState({
+      ...this.state,
+      ['some']: {
+        ...this.state.some,
+        deep: {
+          ...this.state.some.deep,
+          object: {
+            ...this.state.some.deep.object,
+            hello: 'world2'
+          }
+        }
+      }
+    })
+  dec = () => {
+    console.log('what will happen?')
+    this.setState({ count: this.state.count + 0, ['hell' + 'o']: 'yay!' })
+  }
+  render() {
+    return (
+      <div className="App">
+        <div className="App-header" onClick={this.inc} onChange={() => this.myMethod1(1, 2)}>
+          <h2>
+            Welcome to React {this.state.hello} {this.myMethod1()}
+          </h2>
+        </div>
+        <p className="App-intro">
+          To get started, edit <code>src/App.js</code> and save to reload.
+        </p>
+      </div>
+    )
+  }
+  componentDidMount = () => console.log(this.state)
+}
 
-// ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(<App />, document.getElementById('root'))
 
-// `
-// )
+`
+)
 
-// transpileTest(
-//   'Parameter-less functional component',
-//   `
-// import React from 'react'
+transpileTest(
+  'Parameter-less functional component',
+  `
+import React from 'react'
 
-// export default () => <h1>Hello World</h1>
-// `
-// )
+export default () => <h1>Hello World</h1>
+`
+)
 
-// transpileTest('Ignores namespace import', `import * as r from 'react'`)
+transpileTest('Ignores namespace import', `import * as r from 'react'`)
 
-// transpileTest(
-//   'Ignores Component if imported as different name',
-//   `
-// import React, { Component as Cmp, somethingElse as Component } from 'react'
+transpileTest(
+  'Ignores Component if imported as different name',
+  `
+import React, { Component as Cmp, somethingElse as Component } from 'react'
 
-// export default class App extends Component {
-//   state = {
-//     hello: 'world'
-//   }
-//   myMethod = () => {
-//     this.setState({ hello: 'not world ;)' })
-//   }
-//   render() {
-//     return (
-//       <div className="App">
-//         <div className="App-header" onClick={this.myMethod}>
-//           <h2>
-//             Hello {this.state.hello}
-//           </h2>
-//         </div>
-//         <p className="App-intro">
-//           To get started, edit <code>src/App.js</code> and save to reload.
-//         </p>
-//       </div>
-//     )
-//   }
-//   componentDidMount = () => console.log(this.state)
-// }
-// `
-// )
+export default class App extends Component {
+  state = {
+    hello: 'world'
+  }
+  myMethod = () => {
+    this.setState({ hello: 'not world ;)' })
+  }
+  render() {
+    return (
+      <div className="App">
+        <div className="App-header" onClick={this.myMethod}>
+          <h2>
+            Hello {this.state.hello}
+          </h2>
+        </div>
+        <p className="App-intro">
+          To get started, edit <code>src/App.js</code> and save to reload.
+        </p>
+      </div>
+    )
+  }
+  componentDidMount = () => console.log(this.state)
+}
+`
+)
 
-// transpileTest(
-//   'Component without methods',
-//   `
-// import React, { Component } from 'react'
+transpileTest(
+  'Component without methods',
+  `
+import React, { Component } from 'react'
 
-// export default class App extends Component {
-//   state = {
-//     hello: 'world'
-//   }
-//   render() {
-//     return (
-//       <div className="App">
-//         <p>{this.props.prop} {this.hello}</p>
-//       	<button onClick={() => this.setState({hello: 'not world'})}> Mutate </button>
-//       </div>
-//     )
-//   }
-// }
-// `
-// )
+export default class App extends Component {
+  state = {
+    hello: 'world'
+  }
+  render() {
+    return (
+      <div className="App">
+        <p>{this.props.prop} {this.hello}</p>
+        <button onClick={() => this.setState({hello: 'not world'})}> Mutate </button>
+      </div>
+    )
+  }
+}
+`
+)
 
 transpileTest(
   'Component with children',
@@ -170,85 +181,123 @@ export default class App extends Component {
 `
 )
 
-// transpileTest(
-//   'Component with events',
-//   `
-// import React, { Component } from 'react'
+transpileTest(
+  'Component with events',
+  `
+import React, { Component } from 'react'
 
-// export default class App extends Component {
-//   method1() {
-//     const { onSomething: a } = this.props
-//     a(1, '2')
-//   }
-//   method2() {
-//     const { onSomethingElse } = this.props
-//     onSomethingElse(3, '4')
-//   }
-//   method3() {
-//     const { onHello, a, ...props } = this.props
-//     onHello(5, '6')
-//   }
-//   method4() {
-//     const a = 'test'
-//     this.props.onSomeEvent(7, '8', a)
-//   }
-// }`
-// )
+export default class App extends Component {
+  method1() {
+    const { onSomething: a } = this.props
+    a(1, '2')
+  }
+  method2() {
+    const { onSomethingElse } = this.props
+    onSomethingElse(3, '4')
+  }
+  method3() {
+    const { onHello, a, ...props } = this.props
+    onHello(5, '6')
+  }
+  method4() {
+    const a = 'test'
+    this.props.onSomeEvent(7, '8', a)
+  }
+}`
+)
 
-// transpileTest(
-//   'named import from react-dom',
-//   `
-// import React, { Component } from 'react'
-// import { render } from 'react-dom'
+transpileTest(
+  'named import from react-dom',
+  `
+import React, { Component } from 'react'
+import { render } from 'react-dom'
 
-// class App extends Component {}
-// render(<App />, document.getElementById('root'))
-// `
-// )
+class App extends Component {}
+render(<App />, document.getElementById('root'))
+`
+)
 
-// transpileTest(
-//   'import render from react-dom as different name',
-//   `
-// import React, { Component } from 'react'
-// import { render as foo } from 'react-dom'
+transpileTest(
+  'import render from react-dom as different name',
+  `
+import React, { Component } from 'react'
+import { render as foo } from 'react-dom'
 
-// class App extends Component {}
-// foo(<App />, document.getElementById('root'))
-// `
-// )
+class App extends Component {}
+foo(<App />, document.getElementById('root'))
+`
+)
 
-// transpileTest(
-//   'ignores some named import from react-dom',
-//   `
-// import React, { Component } from 'react'
-// import { foo as render } from 'react-dom'
+transpileTest(
+  'ignores some named import from react-dom',
+  `
+import React, { Component } from 'react'
+import { foo as render } from 'react-dom'
 
-// class App extends Component {}
-// render(<App />, document.getElementById('root'))
-// `
-// )
+class App extends Component {}
+render(<App />, document.getElementById('root'))
+`
+)
 
-// transpileTest(
-//   'convert constructor() to data()',
-//   `
-// import React, { Component } from 'react'
+transpileTest(
+  'convert constructor() to data()',
+  `
+import React, { Component } from 'react'
 
-// class App extends Component {
-//   constructor(props) {
-//     super(props)
-//     this.state = {
-//       count: 0
-//     }
-//   }
-// }
-// `
-// )
+class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      count: props.count
+    }
+    this.something = something
+  }
+}
+`
+)
 
-// transpileTest(
-//   'convert React.Component',
-//   `
-// import React from 'react'
+transpileTest(
+  'convert React.Component',
+  `
+import React from 'react'
 
-// class App extends React.Component {}
-// `
-// )
+class App extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = { hello: 'world' }
+  }
+}
+`
+)
+
+transpileTest(
+  'convert multiple state assignments',
+  `
+import React from 'react'
+
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+    const data = 'hello'
+    calling(data) // for coverage
+    this.state = { hello: 'world' }
+    this.state = { hello: 'not world' }
+  }
+}
+`
+)
+
+transpileTest(
+  'ignore simple classes',
+  `
+import React from 'react'
+
+class App {
+  constructor(props) {
+    super(props)
+    const data = 'hello'
+    calling(nested)(data) // for coverage
+  }
+}
+`
+)

@@ -7,15 +7,13 @@
     "type": "git"
   },
   "main": "index.js",
-  "files": [
-    "index.js"
-  ],
+  "files": ["index.js"],
   "scripts": {
     "pretest": "NODE_ENV=test yarn build",
     "test": "yarn lint && ava",
     "lint": "xo",
     "precov": "yarn pretest",
-    "cov": "nyc --reporter=lcov ava",
+    "cov": "nyc --reporter=lcov --reporter=text ava",
     "build": "rollup --config build.js",
     "prepare": "yarn build"
   },
@@ -41,5 +39,8 @@
   },
   "publishConfig": {
     "message": "Release %s"
+  },
+  "nyc": {
+    "exclude": ["dist", "test"]
   }
 }
