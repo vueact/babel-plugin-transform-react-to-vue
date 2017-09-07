@@ -25,6 +25,41 @@ export default ({ types: t }) => ({
         }
       })
 
+      path.traverse({
+        CallExpression(path) {
+          const callee = path.get('callee')
+
+          let isReactDOMRender
+
+          if (t.isMemberExpression(callee)) {
+            const object = callee.get('object')
+            const property = callee.get('property')
+            const computed = callee.node.computed
+
+            isReactDOMRender =
+              !computed &&
+              t.isIdentifier(object) &&
+              t.isIdentifier(property) &&
+              object.node.name === ReactDOM &&
+              property.node.name === 'render'
+          } else if (t.isIdentifier(callee)) {
+            isReactDOMRender = callee.node.name === render
+          }
+
+          if (isReactDOMRender) {
+            const [jsx, el] = path.get('arguments')
+            path.replaceWith(
+              t.newExpression(t.identifier('Vue'), [
+                t.objectExpression([
+                  t.objectProperty(t.identifier('el'), el.node),
+                  t.objectMethod('method', t.identifier('render'), [], t.blockStatement([t.returnStatement(jsx.node)]))
+                ])
+              ])
+            )
+          }
+        }
+      })
+
       removeImports(t, path)
     }
   }

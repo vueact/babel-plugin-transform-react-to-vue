@@ -48,7 +48,8 @@ const transpileTest = (name, reactCode) =>
 //           object: {
 //             ...this.state.some.deep.object,
 //             hello: 'world2'
-//           }
+//           },
+//           ['too']: 3
 //         }
 //       }
 //     })
@@ -70,7 +71,9 @@ const transpileTest = (name, reactCode) =>
 //       </div>
 //     )
 //   }
-//   componentDidMount = () => console.log(this.state)
+//   componentDidMount () {
+//     console.log(this.state)
+//   }
 // }
 
 // ReactDOM.render(<App />, document.getElementById('root'))
@@ -141,31 +144,31 @@ const transpileTest = (name, reactCode) =>
 // `
 // )
 
-// transpileTest(
-//   'Component with children',
-//   `
-// import React, { Component } from 'react'
+transpileTest(
+  'Component with children',
+  `
+import React, { Component } from 'react'
 
-// export default class App extends Component {
-//   method1() {
-//     const { children: a } = this.props
-//     console.log(a)
-//   }
-//   method2() {
-//     const { children } = this.props
-//     console.log(children)
-//   }
-//   method3() {
-//     const { children, a, ...props } = this.props
-//     console.log(children)
-//   }
-//   method4() {
-//     const msg = 'testing'
-//     console.log(this.props.children, msg)
-//   }
-// }
-// `
-// )
+export default class App extends Component {
+  method1() {
+    const { children: a } = this.props
+    console.log(a)
+  }
+  method2() {
+    const { children } = this.props
+    console.log(children)
+  }
+  method3() {
+    const { children, a, ...props } = this.props
+    console.log(children)
+  }
+  method4() {
+    const msg = 'testing'
+    console.log(this.props.children, msg)
+  }
+}
+`
+)
 
 // transpileTest(
 //   'Component with events',
@@ -225,21 +228,21 @@ const transpileTest = (name, reactCode) =>
 // `
 // )
 
-transpileTest(
-  'convert constructor() to data()',
-  `
-import React, { Component } from 'react'
+// transpileTest(
+//   'convert constructor() to data()',
+//   `
+// import React, { Component } from 'react'
 
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      count: 0
-    }
-  }
-}
-`
-)
+// class App extends Component {
+//   constructor(props) {
+//     super(props)
+//     this.state = {
+//       count: 0
+//     }
+//   }
+// }
+// `
+// )
 
 // transpileTest(
 //   'convert React.Component',
